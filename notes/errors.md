@@ -10,3 +10,4 @@ The MCP proxy tried to run `npm server:dev` instead of `npm run server:dev`. `np
 
 **Solution:** 
 Update the arguments field from `npm server:dev` to  `run server:dev`,
+

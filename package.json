@@ -13,7 +13,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.16.0"
+    "@modelcontextprotocol/sdk": "^1.16.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@modelcontextprotocol/inspector": "^0.16.1",
