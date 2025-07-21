@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "name": "Alice Johnson",
+        "email": "alice@test.com",
+        "address": "123 Maple St, Springfield, IL",
+        "phone": "555-1234"
+    },
+    {
+        "id": 2,
+        "name": "Bob Smith",
+        "email": "bob@test.com",
+        "address": "456 Oak St, Springfield, IL",
+        "phone": "555-5678"
+    },
+    {
+        "id": 3,
+        "name": "Charlie Brown",
+        "email": "charlie@test.com",
+        "address": "123 Main St, Omaha, NE",
+        "phone": "555-8765"
+    },
+    {
+        "id": 4,
+        "name": "rez",
+        "email": "rez@gmail.com",
+        "address": "123 casket St, Springfield, France",
+        "phone": "9438534059"
+    },
+    {
+        "id": 5,
+        "name": "zen",
+        "email": "zen@gmail.com",
+        "address": "dubai, uae",
+        "phone": "394309434"
+    },
+    {
+        "id": 6,
+        "name": "rfrfr",
+        "email": "gfgfdgf",
+        "address": "dfdfd",
+        "phone": "5453"
+    }
+]

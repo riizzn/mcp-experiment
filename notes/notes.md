@@ -97,3 +97,44 @@ When adding a tool in MCP, you're basically filling out 5 parts:
 So in short:  
 You're telling MCP **what the tool is**, **what input it needs**, **how safe it is**, and **what code to run**.
 
+### Why Use `node` Instead of `npm` in MCP Projects (in mcp.json)
+
+#### Reasons to prefer `node`:
+
+| Reason                | Explanation                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| Clean output          | `node` runs scripts without adding extra logs to STDOUT                     |
+| npm adds noise        | `npm run` adds banners and script messages that confuse MCP's parser        |
+| Safe for STDIO        | MCP expects clean JSON, not extra output                                    |
+| Direct control        | `node` runs your compiled file directly (e.g., `build/server.js`)           |
+
+#### When to use which:
+
+| Approach             | Clean for MCP? | Best used for                      |
+|----------------------|----------------|------------------------------------|
+| `npm run ...`        | No             | Local dev/testing where logs help  |
+| `node build/file.js` | Yes            | Production or STDIO-based usage    |
+
+### MCP Proxy Config - Key Pieces Explained
+
+| Key         | What it does                                                             |
+|-------------|--------------------------------------------------------------------------|
+| `command`   | Runs the agent using Node.js                                             |
+| `args`      | Path to your compiled server file (e.g., `build/server.js`)              |
+| `cwd`       | Sets the working directory so Node starts in the right folder            |
+| `type: "stdio"` | Tells MCP to use stdin/stdout for communication                      |
+| `watch`     | Automatically restarts the server when code changes                      |
+| `debug`     | Enables debugging (useful in VS Code)                                    |
+| `inputs`    | Manual UI fields you can pass in (none in this case)                     |
+
+### Why We Build TypeScript Before Running
+
+Node.js **can’t run TypeScript (.ts) directly**, so we need to **transpile** it to JavaScript (.js).
+
+When you run:
+
+```bash
+npm run server:build:watch
+
+
+

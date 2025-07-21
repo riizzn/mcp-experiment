@@ -19,7 +19,26 @@
     "email": "charlie@test.com",
     "address": "123 Main St, Omaha, NE",
     "phone": "555-8765"
-  }  
- 
+  },
+  {
+    "id": 4,
+    "name": "rez",
+    "email": "rez@gmail.com",
+    "address": "123 casket St, Springfield, France",
+    "phone": "9438534059"
+  },
+  {
+    "id": 5,
+    "name": "zen",
+    "email": "zen@gmail.com",
+    "address": "dubai, uae",
+    "phone": "394309434"
+  },
+  {
+    "id": 6,
+    "name": "rfrfr",
+    "email": "gfgfdgf",
+    "address": "dfdfd",
+    "phone": "5453"
+  }
 ]
-     
