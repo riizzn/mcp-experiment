@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import z from "zod";
-import fs from "node:fs/promises"
+import fs from "node:fs/promises";
 
 const server = new McpServer({
   name: "test",
@@ -43,19 +43,59 @@ server.tool(
     }
   }
 );
+
+server.tool(
+  "delete-user",
+  "delete an existing user",
+  {
+    id: z.number(),
+  },
+  {
+    title: "Delete a User",
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
+  async(params)=>{
+    try {
+      const id = await deleteUser(params.id);
+      return{
+        content:[{type:"text", text:`User ${id} deleted successfully` }]
+      }
+      
+    } catch {
+      return{
+        content:[{type:"text", text:"Failed to delete user" }]
+
+      }
+      
+    }
+  }
+);
 async function createUser(user: {
   name: string;
   email: string;
   address: string;
   phone: string;
 }) {
-    const users= await import("./data/users.json",{
-    with:{type:"json"}}).then(m=>m.default)
-    const id=users.length+1
-    users.push({id,...user})
-    await fs.writeFile("./src/data/users.json",JSON.stringify(users,null,2))
-    return id;
+  const users = await import("./data/users.json", {
+    with: { type: "json" },
+  }).then((m) => m.default);
+  const id = users.length + 1;
+  users.push({ id, ...user });
+  await fs.writeFile("./src/data/users.json", JSON.stringify(users, null, 2));
+  return id;
+}
 
+async function deleteUser(id:number){
+  const users= await import("./data/users.json",{
+    with:{type:"json"},
+  }).then((m)=>m.default);
+  
+  const updatedUsers= users.filter(user=> user.id!==id)
+  await fs.writeFile("./src/data/users.json", JSON.stringify(updatedUsers, null, 2));
+  return id;
 
 }
 
