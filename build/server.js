@@ -40,13 +40,42 @@ server.tool("create-user", "create a new user in the database", {
         };
     }
 });
+server.tool("delete-user", "delete an existing user", {
+    id: zod_1.default.number(),
+}, {
+    title: "Delete a User",
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: true,
+}, async (params) => {
+    try {
+        const id = await deleteUser(params.id);
+        return {
+            content: [{ type: "text", text: `User ${id} deleted successfully` }]
+        };
+    }
+    catch (_a) {
+        return {
+            content: [{ type: "text", text: "Failed to delete user" }]
+        };
+    }
+});
 async function createUser(user) {
     const users = await import("./data/users.json", {
-        with: { type: "json" }
-    }).then(m => m.default);
+        with: { type: "json" },
+    }).then((m) => m.default);
     const id = users.length + 1;
     users.push({ id, ...user });
     await promises_1.default.writeFile("./src/data/users.json", JSON.stringify(users, null, 2));
+    return id;
+}
+async function deleteUser(id) {
+    const users = await import("./data/users.json", {
+        with: { type: "json" },
+    }).then((m) => m.default);
+    const updatedUsers = users.filter(user => user.id !== id);
+    await promises_1.default.writeFile("./src/data/users.json", JSON.stringify(updatedUsers, null, 2));
     return id;
 }
 async function main() {
