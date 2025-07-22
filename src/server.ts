@@ -49,23 +49,21 @@ server.resource(
     title: "User Details",
     mimeType: "application/json",
   },
-  async (uri,{userId}) => {
+  async (uri, { userId }) => {
     const users = await import("./data/users.json", {
       with: { type: "json" },
     }).then((m) => m.default);
-    const user= users.find(u=> u.id ===parseInt(userId as string))
-    if(user==null){
-      return{
-        contents:[
+    const user = users.find((u) => u.id === parseInt(userId as string));
+    if (user == null) {
+      return {
+        contents: [
           {
-          uri: uri.href,
-          text: JSON.stringify({error: "User not found"}),
-          mimeType: "application/json",
-          }
-
-        ]
-
-      }
+            uri: uri.href,
+            text: JSON.stringify({ error: "User not found" }),
+            mimeType: "application/json",
+          },
+        ],
+      };
     }
     return {
       contents: [
@@ -135,6 +133,27 @@ server.tool(
     }
   }
 );
+server.prompt(
+  "generate-fake-user",
+  "Generate a fake user based on a given name",
+  {
+    name: z.string(),
+  },
+  ({ name }) => {
+    return {
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: `Generate a fake user with the name ${name}.The user should have realistic email, phone and address`,
+          },
+        },
+      ],
+    };
+  }
+);
+
 async function createUser(user: {
   name: string;
   email: string;

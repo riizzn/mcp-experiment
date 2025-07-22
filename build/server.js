@@ -42,7 +42,7 @@ server.resource("user-details", new mcp_js_1.ResourceTemplate("users://{userId}/
     const users = await import("./data/users.json", {
         with: { type: "json" },
     }).then((m) => m.default);
-    const user = users.find(u => u.id === parseInt(userId));
+    const user = users.find((u) => u.id === parseInt(userId));
     if (user == null) {
         return {
             contents: [
@@ -50,8 +50,8 @@ server.resource("user-details", new mcp_js_1.ResourceTemplate("users://{userId}/
                     uri: uri.href,
                     text: JSON.stringify({ error: "User not found" }),
                     mimeType: "application/json",
-                }
-            ]
+                },
+            ],
         };
     }
     return {
@@ -108,6 +108,21 @@ server.tool("delete-user", "delete an existing user", {
             content: [{ type: "text", text: "Failed to delete user" }],
         };
     }
+});
+server.prompt("generate-fake-user", "Generate a fake user based on a given name", {
+    name: zod_1.default.string(),
+}, ({ name }) => {
+    return {
+        messages: [
+            {
+                role: "user",
+                content: {
+                    type: "text",
+                    text: `Generate a fake user with the name ${name}.The user should have realistic email, phone and address`,
+                },
+            },
+        ],
+    };
 });
 async function createUser(user) {
     const users = await import("./data/users.json", {

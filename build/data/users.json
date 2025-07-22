@@ -33,5 +33,12 @@
         "email": "zen@gmail.com",
         "address": "dubai, uae",
         "phone": "394309434"
+    },
+    {
+        "id": 6,
+        "name": "rabi",
+        "email": "rabi.malik@example.com",
+        "address": "42 Crescent Ave, Mumbai, India",
+        "phone": "+91-9876543210"
     }
 ]
