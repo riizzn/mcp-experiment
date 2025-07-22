@@ -155,7 +155,7 @@ random://joke
 
 # MCP Code Notes - Complete Reference
 
-## MCP Prompt Tool Code - Line by Line Breakdown
+## MCP Sampling Code - Line by Line Breakdown
 
 ### Tool Definition
 - **`server.tool("create-random-user", "description", config, handler)`**  
