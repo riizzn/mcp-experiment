@@ -34,6 +34,36 @@ server.resource("users", "users://all", {
         ],
     };
 });
+server.resource("user-details", new mcp_js_1.ResourceTemplate("users://{userId}/profile", { list: undefined }), {
+    description: "get a user's details from the database",
+    title: "User Details",
+    mimeType: "application/json",
+}, async (uri, { userId }) => {
+    const users = await import("./data/users.json", {
+        with: { type: "json" },
+    }).then((m) => m.default);
+    const user = users.find(u => u.id === parseInt(userId));
+    if (user == null) {
+        return {
+            contents: [
+                {
+                    uri: uri.href,
+                    text: JSON.stringify({ error: "User not found" }),
+                    mimeType: "application/json",
+                }
+            ]
+        };
+    }
+    return {
+        contents: [
+            {
+                uri: uri.href,
+                text: JSON.stringify(user),
+                mimeType: "application/json",
+            },
+        ],
+    };
+});
 server.tool("create-user", "create a new user in the database", {
     name: zod_1.default.string(),
     email: zod_1.default.string(),
