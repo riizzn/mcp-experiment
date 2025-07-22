@@ -14,6 +14,30 @@ const server = new McpServer({
   },
 });
 
+server.resource(
+  "users",
+  "users://all",
+  {
+    description: "Get all users data from the database",
+    title: "Users",
+    mimeType: "application/json",
+  },
+  async (uri) => {
+    const users = await import("./data/users.json", {
+      with: { type: "json" },
+    }).then((m) => m.default);
+    return {
+      contents: [
+        {
+          uri: uri.href,
+          text: JSON.stringify(users),
+          mimeType: "application/json",
+        },
+      ],
+    };
+  }
+);
+
 server.tool(
   "create-user",
   "create a new user in the database",
@@ -57,19 +81,16 @@ server.tool(
     idempotentHint: false,
     openWorldHint: true,
   },
-  async(params)=>{
+  async (params) => {
     try {
       const id = await deleteUser(params.id);
-      return{
-        content:[{type:"text", text:`User ${id} deleted successfully` }]
-      }
-      
+      return {
+        content: [{ type: "text", text: `User ${id} deleted successfully` }],
+      };
     } catch {
-      return{
-        content:[{type:"text", text:"Failed to delete user" }]
-
-      }
-      
+      return {
+        content: [{ type: "text", text: "Failed to delete user" }],
+      };
     }
   }
 );
@@ -88,15 +109,17 @@ async function createUser(user: {
   return id;
 }
 
-async function deleteUser(id:number){
-  const users= await import("./data/users.json",{
-    with:{type:"json"},
-  }).then((m)=>m.default);
-  
-  const updatedUsers= users.filter(user=> user.id!==id)
-  await fs.writeFile("./src/data/users.json", JSON.stringify(updatedUsers, null, 2));
-  return id;
+async function deleteUser(id: number) {
+  const users = await import("./data/users.json", {
+    with: { type: "json" },
+  }).then((m) => m.default);
 
+  const updatedUsers = users.filter((user) => user.id !== id);
+  await fs.writeFile(
+    "./src/data/users.json",
+    JSON.stringify(updatedUsers, null, 2)
+  );
+  return id;
 }
 
 async function main() {

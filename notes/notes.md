@@ -135,7 +135,23 @@ When you run:
 
 ```bash
 npm run server:build:watch
+```
 
+### URIs in `server.resource` — You Make Them Up
+
+- You can **invent the URI** — it just needs to be:
+  - **Unique** within your server
+  - Start with a **scheme** (like `letters://`)
+
+---
+
+#### Examples of Custom URIs:
+todo://all
+stats://cpu
+random://joke
+
+- The **client doesn’t care** what the URI means.
+- It just sends the **exact URI** back to your server when requested.
 
 
 
