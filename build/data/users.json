@@ -47,5 +47,12 @@
         "email": "jessica.ramirez82@gmail.com",
         "address": "1842 Willowbrook Lane, Austin, TX 78758",
         "phone": "(512) 555-3478"
+    },
+    {
+        "id": 8,
+        "name": "lizard",
+        "email": "lizard@test.com",
+        "address": "lizard house",
+        "phone": "34335469"
     }
 ]
