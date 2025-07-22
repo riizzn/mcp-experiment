@@ -153,6 +153,164 @@ random://joke
 - The **client doesn’t care** what the URI means.
 - It just sends the **exact URI** back to your server when requested.
 
+# MCP Code Notes - Complete Reference
+
+## MCP Prompt Tool Code - Line by Line Breakdown
+
+### Tool Definition
+- **`server.tool("create-random-user", "description", config, handler)`**  
+  Creates a new tool that the server can use. Like creating a new button or function.
+
+- **`"create-random-user"`**  
+  Tool name/identifier. Other parts of the system use this to call the tool.
+
+- **`"Create a random user with fake data"`**  
+  Human-readable description of what this tool does.
+
+### Tool Configuration Object
+- **`title: "Create Random User"`**  
+  Display name for the tool.
+
+- **`readOnlyHint: false`**  
+  This tool WILL change/modify data (creates new users).
+
+- **`destructiveHint: false`**  
+  This tool WON'T delete or destroy existing data.
+
+- **`idempotentHint: false`**  
+  Running this tool multiple times will give DIFFERENT results each time.
+
+- **`openWorldHint: true`**  
+  This tool can work with any kind of data/situation (it's flexible).
+
+### Main Function Structure
+- **`async () => { ... }`**  
+  The actual function that runs when someone uses this tool. `async` means it can wait for other operations to finish.
+
+### AI Request Methods
+- **`server.server.request(params, schema)`**  
+  Asks another part of the system (AI model) to do something. `await` means wait for this to finish.
+
+- **`method: "sampling/createMessage"`**  
+  Specifies what kind of request we're making - we want to create a message/response.
+
+- **`role: "user"`**  
+  Pretending to be a user asking a question to the AI.
+
+- **`maxTokens: 1024`**  
+  Limits how long the AI's response can be (roughly 700-800 words).
+
+- **`CreateMessageResultSchema`**  
+  Validates that the response follows the expected format.
+
+### Error Checking Methods
+- **`if (res.content.type !== "text")`**  
+  Checks if we got text back. If not, returns an error message.
+
+- **`try { ... } catch { ... }`**  
+  If anything goes wrong in processing, returns error instead of crashing.
+
+### Response Processing Methods
+- **`.trim()`**  
+  Removes extra spaces at the beginning and end of text.
+
+- **`.replace(/^```json/, "")`**  
+  Removes "```json" if it's at the start of the response.
+
+- **`.replace(/```$/, "")`**  
+  Removes "```" if it's at the end of the response.
+
+- **`JSON.parse(cleanedText)`**  
+  Converts the cleaned text into a JavaScript object we can use.
+
+### User Creation Methods
+- **`await createUser(fakeUser)`**  
+  Takes the fake user data and creates an actual user record in the system.
+
+- **`return { content: [{ type: "text", text: message }] }`**  
+  Returns a response message (success or failure) back to whoever called the tool.
+
+## Common Errors & Solutions
+
+### CreateMessageResultSchema Error
+- **`Cannot find name 'CreateMessageResultSchema'`**  
+  The schema isn't defined or imported in your code.
+
+### Solutions:
+- **Import the Schema:**  
+  `import { CreateMessageResultSchema } from '@modelcontextprotocol/sdk/types.js';`
+
+- **Use Different Schema:**  
+  Replace with `CreateMessageRequestSchema` if that's what you meant.
+
+- **Remove Schema Completely:**  
+  Remove the third parameter from `server.server.request()` call.
+
+- **Define Your Own Schema:**  
+  Create a custom validation object for the expected response format.
+
+## Understanding server.server Syntax
+
+### Why Two "server"s?
+- **First `server`:**  
+  Your MCP server instance (the main object).
+
+- **Second `server`:**  
+  A property/method inside that server instance for internal communication.
+
+### Server Object Structure
+- **`server.tool()`**  
+  For defining tools that clients can call.
+
+- **`server.server.request()`**  
+  For making internal requests to other services (like AI models).
+
+### Where It Comes From
+- **`import { Server } from '@modelcontextprotocol/sdk/server/index.js'`**  
+  Imports the MCP Server class.
+
+- **`const server = new Server(config, capabilities)`**  
+  Creates your server instance with the nested structure.
+
+## Purpose of CreateMessageResultSchema
+
+### Response Validation
+- **Ensures Correct Structure:**  
+  Makes sure the AI response has the expected format with content.type and content.text.
+
+### Runtime Type Checking  
+- **Prevents Crashes:**  
+  Catches bad responses before they break your code later.
+
+### Early Error Detection
+- **Fails Fast:**  
+  If response doesn't match schema, it fails immediately with clear error instead of mysterious crashes.
+
+### TypeScript Support
+- **Type Safety:**  
+  Provides type hints and autocomplete if you're using TypeScript.
+
+### Documentation
+- **Living Contract:**  
+  Acts as documentation showing what response format you expect from the AI.
+
+## Expected Response Format
+```javascript
+{
+  content: {
+    type: "text",
+    text: "actual generated content here"
+  }
+}
+```
+
+## What the Tool Actually Does
+1. **Asks AI to create fake user data**
+2. **Cleans up the AI's response** (removes code formatting)
+3. **Converts response to usable JavaScript object**
+4. **Creates a real user record** with that data
+5. **Reports success or failure** back to the caller
+
 
 
 

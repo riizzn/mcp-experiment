@@ -40,5 +40,12 @@
         "email": "rabi.malik@example.com",
         "address": "42 Crescent Ave, Mumbai, India",
         "phone": "+91-9876543210"
+    },
+    {
+        "id": 7,
+        "name": "Jessica Ramirez",
+        "email": "jessica.ramirez82@gmail.com",
+        "address": "1842 Willowbrook Lane, Austin, TX 78758",
+        "phone": "(512) 555-3478"
     }
 ]
