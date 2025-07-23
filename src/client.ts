@@ -3,12 +3,13 @@ import { confirm, input, select } from "@inquirer/prompts";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import {
+  CreateMessageRequestSchema,
   Prompt,
   PromptMessage,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { generateText, jsonSchema, ToolSet } from "ai";
 
 const mcp = new Client(
   {
@@ -34,6 +35,24 @@ async function main() {
       mcp.listResources(),
       mcp.listResourceTemplates(),
     ]);
+     mcp.setRequestHandler(CreateMessageRequestSchema, async request => {
+    const texts: string[] = []
+    for (const message of request.params.messages) {
+      const text = await handleServerMessagePrompt(message)
+      if (text != null) texts.push(text)
+    }
+
+    return {
+      role: "user",
+      model: "gemini-2.0-flash",
+      stopReason: "endTurn",
+      content: {
+        type: "text",
+        text: texts.join("\n"),
+      },
+    }
+  })
+
   console.log("You are connected!");
   while (true) {
     const option = await select({
@@ -85,7 +104,6 @@ async function main() {
         break;
 
       case "Prompts":
-
         const promptName = await select({
           message: "Select a prompt",
           choices: prompts.map((prompt) => ({
@@ -101,9 +119,36 @@ async function main() {
           await handlePrompt(prompt);
         }
         break;
+
+      case "Query":
+        await handleQuery(tools);
     }
-    
   }
+}
+
+async function handleQuery(tools: Tool[]) {
+  const query = await input({ message: "enter your query" });
+  const { text, toolResults } = await generateText({
+    model: google("gemini-2.0-flash"),
+    prompt: query,
+    tools: tools.reduce((obj, tool) => ({
+      ...obj,
+      [tool.name]: {
+        description: tool.description,
+        parameters: jsonSchema(tool.inputSchema),
+        execute: async (args: Record<string, any>) => {
+          const result = await mcp.callTool({
+            name: tool.name,
+            arguments: args,
+          });
+        },
+      },
+    }),{} as ToolSet ),
+  });
+   console.log(
+    // @ts-expect-error
+    text || toolResults[0]?.result?.content[0]?.text || "No text generated."
+  )
 }
 
 async function handleTool(tool: Tool) {

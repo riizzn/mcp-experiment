@@ -54,5 +54,18 @@
     "email": "lizard@test.com",
     "address": "lizard house",
     "phone": "34335469"
+  },
+  {
+    "id": 9,
+    "firstName": "Eleanor",
+    "lastName": "Vance",
+    "email": "eleanor.vance78@example.com",
+    "address": {
+      "street": "481 Oak Street",
+      "city": "Anytown",
+      "state": "CA",
+      "zipCode": "91234"
+    },
+    "phoneNumber": "555-234-5678"
   }
 ]

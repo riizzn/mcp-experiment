@@ -4,6 +4,7 @@ require("dotenv/config");
 const prompts_1 = require("@inquirer/prompts");
 const index_js_1 = require("@modelcontextprotocol/sdk/client/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/client/stdio.js");
+const types_js_1 = require("@modelcontextprotocol/sdk/types.js");
 const google_1 = require("@ai-sdk/google");
 const ai_1 = require("ai");
 const mcp = new index_js_1.Client({
@@ -27,6 +28,23 @@ async function main() {
         mcp.listResources(),
         mcp.listResourceTemplates(),
     ]);
+    mcp.setRequestHandler(types_js_1.CreateMessageRequestSchema, async (request) => {
+        const texts = [];
+        for (const message of request.params.messages) {
+            const text = await handleServerMessagePrompt(message);
+            if (text != null)
+                texts.push(text);
+        }
+        return {
+            role: "user",
+            model: "gemini-2.0-flash",
+            stopReason: "endTurn",
+            content: {
+                type: "text",
+                text: texts.join("\n"),
+            },
+        };
+    });
     console.log("You are connected!");
     while (true) {
         const option = await (0, prompts_1.select)({
@@ -95,8 +113,34 @@ async function main() {
                     await handlePrompt(prompt);
                 }
                 break;
+            case "Query":
+                await handleQuery(tools);
         }
     }
+}
+async function handleQuery(tools) {
+    var _a, _b, _c;
+    const query = await (0, prompts_1.input)({ message: "enter your query" });
+    const { text, toolResults } = await (0, ai_1.generateText)({
+        model: google("gemini-2.0-flash"),
+        prompt: query,
+        tools: tools.reduce((obj, tool) => ({
+            ...obj,
+            [tool.name]: {
+                description: tool.description,
+                parameters: (0, ai_1.jsonSchema)(tool.inputSchema),
+                execute: async (args) => {
+                    const result = await mcp.callTool({
+                        name: tool.name,
+                        arguments: args,
+                    });
+                },
+            },
+        }), {}),
+    });
+    console.log(
+    // @ts-expect-error
+    text || ((_c = (_b = (_a = toolResults[0]) === null || _a === void 0 ? void 0 : _a.result) === null || _b === void 0 ? void 0 : _b.content[0]) === null || _c === void 0 ? void 0 : _c.text) || "No text generated.");
 }
 async function handleTool(tool) {
     var _a;
