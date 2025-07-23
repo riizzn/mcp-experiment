@@ -1,8 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const prompts_1 = require("@inquirer/prompts");
 const index_js_1 = require("@modelcontextprotocol/sdk/client/index.js");
 const stdio_js_1 = require("@modelcontextprotocol/sdk/client/stdio.js");
+const google_1 = require("@ai-sdk/google");
+const ai_1 = require("ai");
 const mcp = new index_js_1.Client({
     name: "test-client",
     version: "1.0.0",
@@ -11,6 +14,9 @@ const transport = new stdio_js_1.StdioClientTransport({
     command: "node",
     args: ["build/server.js"],
     stderr: "ignore",
+});
+const google = (0, google_1.createGoogleGenerativeAI)({
+    apiKey: process.env.GEMINI_API_KEY,
 });
 async function main() {
     var _a, _b, _c;
@@ -72,6 +78,23 @@ async function main() {
                     await handleResource(uri);
                 }
                 break;
+            case "Prompts":
+                const promptName = await (0, prompts_1.select)({
+                    message: "Select a prompt",
+                    choices: prompts.map((prompt) => ({
+                        name: prompt.name,
+                        value: prompt.name,
+                        description: prompt.description,
+                    })),
+                });
+                const prompt = prompts.find((p) => p.name === promptName);
+                if (prompt == null) {
+                    console.error("Prompt not found");
+                }
+                else {
+                    await handlePrompt(prompt);
+                }
+                break;
         }
     }
 }
@@ -102,9 +125,41 @@ async function handleResource(uri) {
         }
     }
     const res = await mcp.readResource({
-        uri: finalUri
+        uri: finalUri,
     });
     console.log(JSON.stringify(JSON.parse(res.contents[0].text), null, 2));
+}
+async function handlePrompt(prompt) {
+    var _a;
+    const args = {};
+    for (const arg of (_a = prompt.arguments) !== null && _a !== void 0 ? _a : []) {
+        args[arg.name] = await (0, prompts_1.input)({
+            message: `Enter value for ${arg.name}:`,
+        });
+    }
+    const res = await mcp.getPrompt({
+        name: prompt.name,
+        arguments: args,
+    });
+    for (const message of res.messages) {
+        console.log(await handleServerMessagePrompt(message));
+    }
+}
+async function handleServerMessagePrompt(message) {
+    if (message.content.type !== "text")
+        return;
+    console.log(message.content.text);
+    const run = await (0, prompts_1.confirm)({
+        message: "Would you like to run the above prompt",
+        default: true,
+    });
+    if (!run)
+        return;
+    const { text } = await (0, ai_1.generateText)({
+        model: google("gemini-2.0-flash"),
+        prompt: message.content.text,
+    });
+    return text;
 }
 main();
 //# sourceMappingURL=client.js.map
