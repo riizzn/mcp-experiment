@@ -13,8 +13,9 @@ const transport = new stdio_js_1.StdioClientTransport({
     stderr: "ignore",
 });
 async function main() {
+    var _a, _b, _c;
     await mcp.connect(transport);
-    const [{ tools }, { prompts }, { resources }, { ResourceTemplate }] = await Promise.all([
+    const [{ tools }, { prompts }, { resources }, { resourceTemplates }] = await Promise.all([
         mcp.listTools(),
         mcp.listPrompts(),
         mcp.listResources(),
@@ -47,6 +48,30 @@ async function main() {
                     await handleTool(tool);
                 }
                 break;
+            case "Resources":
+                const resourceUri = await (0, prompts_1.select)({
+                    message: "Select a resource",
+                    choices: [
+                        ...resources.map((resource) => ({
+                            name: resource.name,
+                            value: resource.uri,
+                            description: resource.description,
+                        })),
+                        ...resourceTemplates.map((template) => ({
+                            name: template.name,
+                            value: template.uriTemplate,
+                            description: template.description,
+                        })),
+                    ],
+                });
+                const uri = (_b = (_a = resources.find((r) => r.uri === resourceUri)) === null || _a === void 0 ? void 0 : _a.uri) !== null && _b !== void 0 ? _b : (_c = resourceTemplates.find((r) => r.uriTemplate === resourceUri)) === null || _c === void 0 ? void 0 : _c.uriTemplate;
+                if (uri == null) {
+                    console.error("Resource not found.");
+                }
+                else {
+                    await handleResource(uri);
+                }
+                break;
         }
     }
 }
@@ -63,6 +88,23 @@ async function handleTool(tool) {
         arguments: args,
     });
     console.log(res.content[0].text);
+}
+async function handleResource(uri) {
+    let finalUri = uri;
+    const paramMatches = uri.match(/{([^}]+)}/g);
+    if (paramMatches != null) {
+        for (const paramMatch of paramMatches) {
+            const paramName = paramMatch.replace("{", "").replace("}", "");
+            const paramValue = await (0, prompts_1.input)({
+                message: `Enter value for ${paramName}:`,
+            });
+            finalUri = finalUri.replace(paramMatch, paramValue);
+        }
+    }
+    const res = await mcp.readResource({
+        uri: finalUri
+    });
+    console.log(JSON.stringify(JSON.parse(res.contents[0].text), null, 2));
 }
 main();
 //# sourceMappingURL=client.js.map

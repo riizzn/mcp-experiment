@@ -426,6 +426,101 @@ This function is **flexible** - it works with any tool because:
 
 Just copy and paste this into your notes.md file!
 
+```markdown
+# JavaScript Operators Explanation
+
+## The `?.` (Question Mark + Dot) - Optional Chaining
+This is called **optional chaining**. It's like asking "if this thing exists, then get its property, otherwise give me nothing."
+
+**Without `?.` (the old way):**
+```javascript
+// This could crash if resource is undefined!
+const uri = resources.find((r) => r.uri === resourceUri).uri;
+```
+
+**With `?.` (the safe way):**
+```javascript
+// This won't crash - if find() returns nothing, uri becomes undefined
+const uri = resources.find((r) => r.uri === resourceUri)?.uri;
+```
+
+Think of it like this:
+- "Hey, do you have a box?" 
+- If yes: "What's inside the box?"
+- If no box exists: "Okay, nothing then" (instead of crashing)
+
+## The `??` (Double Question Mark) - Nullish Coalescing
+This is called the **nullish coalescing operator**. It means "use the backup option if the first thing is null or undefined."
+
+```javascript
+const result = firstOption ?? backupOption;
+```
+
+It's like saying: "Try the first thing, but if it's empty/missing, use the backup instead."
+
+## Breaking Down the Code Step by Step
+
+```javascript
+const uri =
+  resources.find((r) => r.uri === resourceUri)?.uri ??
+  resourceTemplates.find((r) => r.uriTemplate === resourceUri)?.uriTemplate;
+```
+
+**Step 1:** `resources.find((r) => r.uri === resourceUri)`
+- Look through the `resources` list
+- Find one where `r.uri` matches what the user picked
+- This might return a resource object, or `undefined` if not found
+
+**Step 2:** `?.uri`
+- IF we found a resource, get its `uri` property
+- IF we didn't find anything, return `undefined`
+
+**Step 3:** `??`
+- IF the first part gave us something, use that
+- IF the first part was `undefined`, try the backup option
+
+**Step 4:** `resourceTemplates.find(...)`
+- Same as step 1, but look in templates instead
+- Find a template where `uriTemplate` matches what user picked
+
+**Step 5:** `?.uriTemplate`
+- IF we found a template, get its `uriTemplate` property
+- IF not found, return `undefined`
+
+## Real Example
+Let's say:
+- User picked "user-db"
+- `resources` = `[{name: "files", uri: "file://docs"}, {name: "users", uri: "user-db"}]`
+- `resourceTemplates` = `[{name: "temp", uriTemplate: "temp://something"}]`
+
+**What happens:**
+1. `resources.find(...)` finds `{name: "users", uri: "user-db"}`
+2. `?.uri` gets `"user-db"`
+3. Since we got something, `??` doesn't need the backup
+4. Final result: `uri = "user-db"`
+
+**If user picked something not in resources:**
+1. `resources.find(...)` returns `undefined`
+2. `?.uri` returns `undefined`
+3. `??` says "try the backup!"
+4. `resourceTemplates.find(...)` tries to find it there
+5. If found there, use that; if not, `uri` becomes `undefined`
+
+## The Final Check
+```javascript
+if (uri == null) {
+  console.error("Resource not found.");
+} else {
+  await handleResource(uri);
+}
+```
+
+- `uri == null` checks if `uri` is `null` OR `undefined`
+- If it's empty, show error
+- If it has a value, use it with `handleResource()`
+
+It's like having two backup plans before giving up!
+```
 
 
 
